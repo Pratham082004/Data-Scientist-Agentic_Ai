@@ -1,0 +1,29 @@
+# Core
+python-dotenv
+pyyaml
+requests
+
+# Data
+pandas
+numpy
+scikit-learn
+
+# Visualization
+matplotlib
+seaborn
+
+# ML Tools
+joblib
+
+# Web Apps
+flask
+streamlit
+
+# Logging
+loguru
+
+# Multi-agent LLM Client
+openai~=1.0.0
+
+fastapi
+uvicorn

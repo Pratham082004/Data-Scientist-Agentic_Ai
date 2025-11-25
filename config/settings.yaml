@@ -1,0 +1,43 @@
+# ===========================================================
+# Global Project Settings
+# ===========================================================
+
+project:
+  name: "Data Scientist Agentic AI"
+  version: "1.0.0"
+  environment: "development"   # development | production
+
+paths:
+  raw_data_dir: "data/raw"
+  processed_data_dir: "data/processed"
+  eda_output_dir: "outputs/eda"
+  logs_dir: "outputs/logs"
+  final_output_dir: "outputs/final"
+  models_dir: "models"
+
+logging:
+  level: "INFO"    # DEBUG | INFO | WARNING | ERROR
+
+agents:
+  common:
+    max_retries: 2
+    retry_delay: 1.0      # seconds
+
+  cleaner:
+    enable_scaling: true
+    numeric_imputation: "mean"    # mean | median
+    categorical_imputation: "mode"
+
+  analyst:
+    top_k_relationships: 5
+
+  ml:
+    test_size: 0.2
+    random_state: 42
+    allow_advanced_models: true
+
+memory:
+  episodic:
+    max_length: 20
+  reflexion:
+    storage_path: "outputs/logs/reflexion_memory.json"

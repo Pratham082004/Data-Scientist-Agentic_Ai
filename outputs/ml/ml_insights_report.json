@@ -1,0 +1,93 @@
+{
+  "dataset_shape": [
+    147,
+    6
+  ],
+  "train_shape": [
+    117,
+    5
+  ],
+  "test_shape": [
+    30,
+    5
+  ],
+  "target_column": "Species",
+  "problem_type": "regression",
+  "models_attempted": [
+    "LinReg",
+    "RFReg"
+  ],
+  "cv_scores": {
+    "LinReg": 0.9193146884530075,
+    "RFReg": 0.9585374737832995
+  },
+  "best_model": {
+    "name": "RFReg",
+    "score": 0.9585374737832995
+  },
+  "feature_importances": [
+    {
+      "feature": "PetalLengthCm",
+      "importance": 0.6216010913045448
+    },
+    {
+      "feature": "PetalWidthCm",
+      "importance": 0.3682998162016475
+    },
+    {
+      "feature": "SepalWidthCm",
+      "importance": 0.006026621292541322
+    },
+    {
+      "feature": "SepalLengthCm",
+      "importance": 0.004072471201266473
+    },
+    {
+      "feature": "_is_outlier",
+      "importance": 0.0
+    }
+  ],
+  "sample_predictions": [
+    {
+      "true": 1.222710243458584,
+      "pred": 1.0811354717759274
+    },
+    {
+      "true": -0.008374727694921816,
+      "pred": -0.008374727694921808
+    },
+    {
+      "true": 1.222710243458584,
+      "pred": 1.2227102434585804
+    },
+    {
+      "true": -1.2394596988484274,
+      "pred": -1.2394596988484297
+    },
+    {
+      "true": 1.222710243458584,
+      "pred": 0.022402396583915726
+    },
+    {
+      "true": -1.2394596988484274,
+      "pred": -1.2394596988484297
+    },
+    {
+      "true": -0.008374727694921816,
+      "pred": -0.008374727694921808
+    },
+    {
+      "true": -1.2394596988484274,
+      "pred": -1.2394596988484297
+    },
+    {
+      "true": -0.008374727694921816,
+      "pred": 1.1057571711989973
+    },
+    {
+      "true": -1.2394596988484274,
+      "pred": -1.2394596988484297
+    }
+  ],
+  "warnings": []
+}

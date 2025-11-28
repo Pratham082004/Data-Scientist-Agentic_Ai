@@ -1,15 +1,13 @@
-# agents/llm_agent_base.py
 """
 LLM-backed Agent base class.
 
-Responsibilities:
-- Provide a consistent interface for LLM calls (call_llm)
-- Provide a THINK -> PLAN -> ACT -> REFLECT lifecycle
-- Provide structured logging and safe error handling
-- Provide a placeholder integration with llm.openrouter_client API wrapper
-
-Note: An implementation of llm.openrouter_client.openrouter_chat_completion(...) is expected
-to be available in the project and will be used by call_llm().
+Upgraded capabilities:
+- Supports mode "A" (deterministic) and mode "B" (LLM-aware agents)
+- Provides THINK → PLAN → ACT → REFLECT lifecycle
+- Common LLM helper (call_llm) for agents like MLAgent
+- Safe error handling and retry logic
+- ❗ IMPORTANT: We NO LONGER merge context keys into the plan.
+  Each agent reads context only from plan["context"].
 """
 
 from __future__ import annotations
@@ -18,11 +16,13 @@ import logging
 from dataclasses import dataclass, field
 from typing import Any, Dict, Optional, List
 
-# Use Python's logging (project can swap with loguru in tools/logger)
 logger = logging.getLogger(__name__)
 logger.addHandler(logging.NullHandler())
 
 
+# ==========================================================
+# RESULT WRAPPER
+# ==========================================================
 @dataclass
 class AgentResult:
     success: bool
@@ -32,142 +32,200 @@ class AgentResult:
     metadata: Dict[str, Any] = field(default_factory=dict)
 
 
+# ==========================================================
+# BASE AGENT
+# ==========================================================
 class LLMAgentBase:
     """
-    Base class for any LLM-backed agent in the system.
+    Base class for any agent (with or without LLM help).
 
-    Subclasses should implement:
+    Subclasses must implement:
       - think(self, context) -> str
-      - plan(self, thought) -> Dict
+      - plan(self, thought) -> Dict[str, Any]
       - act(self, plan, tools) -> AgentResult
-      - reflect(self, result) -> Optional[Dict]
-
-    This base class provides `run(context)` which orchestrates the lifecycle.
+      - reflect(self, result) -> Optional[Dict[str, Any]]
     """
 
     def __init__(
         self,
         name: str,
         prompt_template: Optional[str] = None,
+        mode: str = "A",                # "A" = deterministic, "B" = LLM-aware
         max_retries: int = 2,
         retry_delay: float = 1.0,
         llm_client: Optional[Any] = None,
     ):
         self.name = name
+        self.mode = (mode or "A").upper()
+        if self.mode not in ("A", "B"):
+            self.mode = "A"
+
         self.prompt_template = prompt_template or ""
         self.max_retries = max_retries
         self.retry_delay = retry_delay
-        self.llm_client = llm_client  # expected to be an instance/wrapper for OpenRouter or other LLM client
-        logger.debug("Initialized agent '%s' with max_retries=%d", name, max_retries)
+        self.llm_client = llm_client  # e.g., OpenRouterClient
 
-    # ----- LLM calling helper -----
+        logger.info(
+            "[%s] Initialized (mode=%s, max_retries=%d)",
+            self.name,
+            self.mode,
+            self.max_retries,
+        )
+
+    # ------------------------------------------------------
+    # LLM CALL HELPER (used by MLAgent, etc.)
+    # ------------------------------------------------------
     def call_llm(self, prompt: str, **kwargs) -> Dict[str, Any]:
         """
-        Wrapper to call the configured LLM client.
+        Thin wrapper around self.llm_client.chat_completion(...).
 
-        Expects llm_client to expose a method `chat_completion(prompt, **kwargs)`
-        or `openrouter_chat_completion(...)`. Implementations can adapt as needed.
+        Expected response format (OpenAI / OpenRouter style):
+        {
+          "choices": [
+            { "message": { "content": "..." } }
+          ]
+        }
         """
         if not self.llm_client:
-            raise RuntimeError("LLM client not configured for agent '%s'." % self.name)
+            raise RuntimeError(f"LLM client not configured for agent '{self.name}'.")
 
-        last_exc = None
+        last_exc: Optional[Exception] = None
+
         for attempt in range(1, self.max_retries + 1):
             try:
-                logger.debug("[%s] Calling LLM (attempt %d). Prompt length=%d", self.name, attempt, len(prompt))
-                # standard expected interface; adapt if your client differs
-                if hasattr(self.llm_client, "chat_completion"):
-                    resp = self.llm_client.chat_completion(prompt=prompt, **kwargs)
-                elif hasattr(self.llm_client, "openrouter_chat_completion"):
-                    resp = self.llm_client.openrouter_chat_completion(prompt=prompt, **kwargs)
-                else:
-                    # fallback: try generic call
-                    resp = self.llm_client(prompt=prompt, **kwargs)  # type: ignore
-                logger.debug("[%s] LLM call succeeded on attempt %d", self.name, attempt)
+                logger.debug(
+                    "[%s] LLM call attempt %d/%d. Prompt preview: %s",
+                    self.name,
+                    attempt,
+                    self.max_retries,
+                    prompt[:200],
+                )
+
+                # Delegate to OpenRouterClient (or similar)
+                resp = self.llm_client.chat_completion(
+                    prompt=prompt,
+                    **kwargs,
+                )
+
+                if "choices" not in resp:
+                    raise RuntimeError("Invalid LLM response: missing 'choices' key.")
+
                 return resp
+
             except Exception as e:
                 last_exc = e
-                logger.warning("[%s] LLM call failed attempt %d/%d: %s", self.name, attempt, self.max_retries, e)
+                logger.warning(
+                    "[%s] LLM call failed on attempt %d/%d: %s",
+                    self.name,
+                    attempt,
+                    self.max_retries,
+                    e,
+                )
                 time.sleep(self.retry_delay * attempt)
 
-        logger.error("[%s] All LLM attempts failed. Raising last exception.", self.name)
-        raise last_exc  # propagate final exception
+        raise RuntimeError(
+            f"[{self.name}] LLM call failed after {self.max_retries} attempts: {last_exc}"
+        )
 
-    # ----- Lifecycle hooks intended for override -----
+    # ------------------------------------------------------
+    # ABSTRACT HOOKS — MUST BE OVERRIDDEN
+    # ------------------------------------------------------
     def think(self, context: Dict[str, Any]) -> str:
-        """
-        Produce a short 'thought' describing the agent's internal reasoning about the task.
-        Should be implemented by subclass.
-        """
         raise NotImplementedError()
 
     def plan(self, thought: str) -> Dict[str, Any]:
-        """
-        Given the thought, produce a structured plan (steps, tools to invoke, parameters).
-        """
         raise NotImplementedError()
 
     def act(self, plan: Dict[str, Any], tools: Any) -> AgentResult:
-        """
-        Execute the plan using provided tools (a module or object containing helper functions).
-        Return AgentResult with outputs and any metadata.
-        """
         raise NotImplementedError()
 
     def reflect(self, result: AgentResult) -> Optional[Dict[str, Any]]:
         """
-        Optional reflection step: inspect results and decide whether to re-plan/retry.
-        Return a dict with actions to take (e.g., {'retry': True, 'reason': '...'}), or None.
+        Optional: subclasses can request retries, e.g.
+        return {"retry": True, "reason": "..."}
         """
         return None
 
-    # ----- Orchestrator -----
+    # ------------------------------------------------------
+    # MAIN ORCHESTRATION LOOP
+    # ------------------------------------------------------
     def run(self, context: Dict[str, Any], tools: Any = None) -> AgentResult:
         """
-        Full run: think -> plan -> act -> reflect -> maybe retry.
+        THINK → PLAN → ACT → REFLECT (+ optional retries).
 
-        context: free-form dict that includes dataset, config, params, etc.
-        tools: reference to tools module or object (data_tools, eda_tools, ml_tools)
+        context: arbitrary dict containing things like:
+                 { "data_path": "...", "dataframe": df, "target_column": "..." }
+
+        tools:   module or object providing helper functions
+                 (e.g., tools.data_tools, tools.eda_tools, tools.ml_tools)
         """
-        logger.info("[%s] run() started", self.name)
-        attempt = 0
+        logger.info("[%s] run() started (mode=%s)", self.name, self.mode)
+
         last_result: Optional[AgentResult] = None
 
-        while attempt <= self.max_retries:
-            attempt += 1
+        for attempt in range(1, self.max_retries + 1):
             try:
+                # ---------------- THINK ----------------
+                logger.debug("[%s] THINK — using context keys: %s", self.name, list(context.keys()))
                 thought = self.think(context)
                 logger.debug("[%s] Thought: %s", self.name, thought)
 
-                plan = self.plan(thought)
-                logger.debug("[%s] Plan: %s", self.name, plan)
+                # ---------------- PLAN -----------------
+                plan = self.plan(thought) or {}
+                if not isinstance(plan, dict):
+                    raise TypeError(f"[{self.name}] plan() must return a dict, got {type(plan)}")
 
+                # ❗ IMPORTANT: we only attach the full context under a SINGLE key.
+                # We DO NOT merge context keys into top-level plan to avoid
+                # collisions and weird bugs (especially for MLAgent).
+                plan["context"] = context
+
+                logger.debug("[%s] Final plan before act(): %s", self.name, plan)
+
+                # ---------------- ACT ------------------
                 result = self.act(plan, tools)
-                logger.info("[%s] Action completed. success=%s", self.name, result.success)
+                logger.info("[%s] act() finished. success=%s", self.name, result.success)
 
+                # ---------------- REFLECT --------------
                 reflection = self.reflect(result)
-                if reflection:
-                    logger.debug("[%s] Reflection suggests: %s", self.name, reflection)
-                    # simple reflexion model: if reflection requests retry, allow it
-                    if reflection.get("retry") and attempt <= self.max_retries:
-                        logger.info("[%s] Reflection requested retry (attempt %d).", self.name, attempt)
-                        last_result = result
-                        time.sleep(self.retry_delay)
-                        continue
+                if (
+                    reflection
+                    and reflection.get("retry")
+                    and attempt < self.max_retries
+                ):
+                    logger.info(
+                        "[%s] Reflection requested retry (%d/%d). Reason: %s",
+                        self.name,
+                        attempt,
+                        self.max_retries,
+                        reflection.get("reason", ""),
+                    )
+                    last_result = result
+                    time.sleep(self.retry_delay)
+                    continue  # retry loop
 
-                # final return if no retry requested
+                # No retry requested → return result
                 return result
 
             except Exception as e:
-                logger.exception("[%s] Exception during run (attempt %d): %s", self.name, attempt, e)
-                last_result = AgentResult(success=False, error=str(e), messages=[f"exception: {e}"])
-                if attempt <= self.max_retries:
-                    logger.info("[%s] Retrying after exception (attempt %d).", self.name, attempt)
-                    time.sleep(self.retry_delay * attempt)
+                logger.exception(
+                    "[%s] Exception in run() attempt %d: %s",
+                    self.name,
+                    attempt,
+                    e,
+                )
+                last_result = AgentResult(
+                    success=False,
+                    error=str(e),
+                    messages=[f"exception: {e}"],
+                )
+                if attempt < self.max_retries:
+                    time.sleep(self.retry_delay)
                     continue
-                break
 
-        # if we exit loop without successful result, return last_result or a failure
-        if last_result:
-            return last_result
-        return AgentResult(success=False, error="Unknown error in agent run", messages=[])
+        # If we exhausted retries, return the last result or a generic failure
+        return last_result or AgentResult(
+            success=False,
+            error=f"[{self.name}] Agent failed with unknown error.",
+            messages=[],
+        )

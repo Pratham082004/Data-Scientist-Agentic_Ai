@@ -1,0 +1,206 @@
+2025-11-27 20:51:00	INFO	tools.data_tools	Loading CSV from data/raw/sample.csv
+2025-11-27 20:51:00	INFO	tools.data_tools	Dropped 3 duplicate rows.
+2025-11-27 20:51:00	INFO	tools.data_tools	Imputed numeric columns using mean.
+2025-11-27 20:51:00	INFO	tools.data_tools	Imputed categorical columns using mode.
+2025-11-27 20:51:00	INFO	tools.data_tools	Encoded 1 categorical columns with category codes.
+2025-11-27 20:51:00	INFO	tools.data_tools	Scaled 5 numeric columns with StandardScaler.
+2025-11-27 20:51:00	INFO	tools.data_tools	Detected 4 outlier rows using IQR.
+2025-11-27 20:51:00	INFO	tools.data_tools	Saving dataframe to data/processed/cleaned_1764256860776.csv
+2025-11-27 20:51:01	INFO	tools.eda_tools	Generated summary statistics for 6 columns.
+2025-11-27 20:51:01	INFO	tools.eda_tools	Saved correlation heatmap to outputs/eda\correlation_heatmap.png
+2025-11-27 20:51:03	INFO	tools.eda_tools	Saved 6 distribution plots to outputs/eda
+2025-11-27 20:51:03	INFO	tools.eda_tools	Computed top 5 feature relationships.
+2025-11-27 20:54:19	INFO	tools.data_tools	Loading CSV from data/raw/sample.csv
+2025-11-27 20:54:19	INFO	tools.data_tools	Dropped 3 duplicate rows.
+2025-11-27 20:54:19	INFO	tools.data_tools	Imputed numeric columns using mean.
+2025-11-27 20:54:19	INFO	tools.data_tools	Imputed categorical columns using mode.
+2025-11-27 20:54:19	INFO	tools.data_tools	Encoded 1 categorical columns with category codes.
+2025-11-27 20:54:19	INFO	tools.data_tools	Scaled 5 numeric columns with StandardScaler.
+2025-11-27 20:54:19	INFO	tools.data_tools	Detected 4 outlier rows using IQR.
+2025-11-27 20:54:19	INFO	tools.data_tools	Saving dataframe to data/processed/cleaned_1764257059645.csv
+2025-11-27 20:54:20	INFO	tools.eda_tools	Generated summary statistics for 6 columns.
+2025-11-27 20:54:21	INFO	tools.eda_tools	Saved correlation heatmap to outputs/eda\correlation_heatmap.png
+2025-11-27 20:54:25	INFO	tools.eda_tools	Saved 6 distribution plots to outputs/eda
+2025-11-27 20:54:25	INFO	tools.eda_tools	Computed top 5 feature relationships.
+2025-11-27 20:56:44	INFO	tools.data_tools	Loading CSV from data/raw/sample.csv
+2025-11-27 20:56:44	INFO	tools.data_tools	Dropped 3 duplicate rows.
+2025-11-27 20:56:44	INFO	tools.data_tools	Imputed numeric columns using mean.
+2025-11-27 20:56:44	INFO	tools.data_tools	Imputed categorical columns using mode.
+2025-11-27 20:56:44	INFO	tools.data_tools	Encoded 1 categorical columns with category codes.
+2025-11-27 20:56:44	INFO	tools.data_tools	Scaled 5 numeric columns with StandardScaler.
+2025-11-27 20:56:44	INFO	tools.data_tools	Detected 4 outlier rows using IQR.
+2025-11-27 20:56:44	INFO	tools.data_tools	Saving dataframe to data/processed/cleaned_1764257204302.csv
+2025-11-27 20:56:44	INFO	tools.eda_tools	Generated summary statistics for 6 columns.
+2025-11-27 20:56:45	INFO	tools.eda_tools	Saved correlation heatmap to outputs/eda\correlation_heatmap.png
+2025-11-27 20:56:47	INFO	tools.eda_tools	Saved 6 distribution plots to outputs/eda
+2025-11-27 20:56:47	INFO	tools.eda_tools	Computed top 5 feature relationships.
+2025-11-27 20:59:24	INFO	tools.data_tools	Loading CSV from data/raw/sample.csv
+2025-11-27 20:59:24	INFO	tools.data_tools	Dropped 3 duplicate rows.
+2025-11-27 20:59:24	INFO	tools.data_tools	Imputed numeric columns using mean.
+2025-11-27 20:59:24	INFO	tools.data_tools	Imputed categorical columns using mode.
+2025-11-27 20:59:24	INFO	tools.data_tools	Encoded 1 categorical columns with category codes.
+2025-11-27 20:59:24	INFO	tools.data_tools	Scaled 5 numeric columns with StandardScaler.
+2025-11-27 20:59:24	INFO	tools.data_tools	Detected 4 outlier rows using IQR.
+2025-11-27 20:59:24	INFO	tools.data_tools	Saving dataframe to data/processed/cleaned_1764257364388.csv
+2025-11-27 20:59:24	INFO	tools.eda_tools	Generated summary statistics for 6 columns.
+2025-11-27 20:59:25	INFO	tools.eda_tools	Saved correlation heatmap to outputs/eda\correlation_heatmap.png
+2025-11-27 20:59:27	INFO	tools.eda_tools	Saved 6 distribution plots to outputs/eda
+2025-11-27 20:59:27	INFO	tools.eda_tools	Computed top 5 feature relationships.
+2025-11-27 21:04:07	INFO	tools.data_tools	Loading CSV from data/raw/sample.csv
+2025-11-27 21:04:07	INFO	tools.data_tools	Dropped 3 duplicate rows.
+2025-11-27 21:04:07	INFO	tools.data_tools	Imputed numeric columns using mean.
+2025-11-27 21:04:07	INFO	tools.data_tools	Imputed categorical columns using mode.
+2025-11-27 21:04:07	INFO	tools.data_tools	Encoded 1 categorical columns with category codes.
+2025-11-27 21:04:07	INFO	tools.data_tools	Scaled 5 numeric columns with StandardScaler.
+2025-11-27 21:04:07	INFO	tools.data_tools	Detected 4 outlier rows using IQR.
+2025-11-27 21:04:07	INFO	tools.data_tools	Saving dataframe to data/processed/cleaned_1764257647330.csv
+2025-11-27 21:04:08	INFO	tools.eda_tools	Generated summary statistics for 6 columns.
+2025-11-27 21:04:09	INFO	tools.eda_tools	Saved correlation heatmap to outputs/eda\correlation_heatmap.png
+2025-11-27 21:04:12	INFO	tools.eda_tools	Saved 6 distribution plots to outputs/eda
+2025-11-27 21:04:12	INFO	tools.eda_tools	Computed top 5 feature relationships.
+2025-11-27 21:12:10	INFO	tools.data_tools	Loading CSV from data/raw/sample.csv
+2025-11-27 21:12:10	INFO	tools.data_tools	Dropped 3 duplicate rows.
+2025-11-27 21:12:10	INFO	tools.data_tools	Imputed numeric columns using mean.
+2025-11-27 21:12:10	INFO	tools.data_tools	Imputed categorical columns using mode.
+2025-11-27 21:12:10	INFO	tools.data_tools	Encoded 1 categorical columns with category codes.
+2025-11-27 21:12:10	INFO	tools.data_tools	Scaled 5 numeric columns with StandardScaler.
+2025-11-27 21:12:10	INFO	tools.data_tools	Detected 4 outlier rows using IQR.
+2025-11-27 21:12:10	INFO	tools.data_tools	Saving dataframe to data/processed/cleaned_1764258130420.csv
+2025-11-27 21:12:11	INFO	tools.eda_tools	Generated summary statistics for 6 columns.
+2025-11-27 21:12:11	INFO	tools.eda_tools	Saved correlation heatmap to outputs/eda\correlation_heatmap.png
+2025-11-27 21:12:13	INFO	tools.eda_tools	Saved 6 distribution plots to outputs/eda
+2025-11-27 21:12:13	INFO	tools.eda_tools	Computed top 5 feature relationships.
+2025-11-27 21:13:43	INFO	tools.data_tools	Loading CSV from data/raw/sample.csv
+2025-11-27 21:13:43	INFO	tools.data_tools	Dropped 3 duplicate rows.
+2025-11-27 21:13:43	INFO	tools.data_tools	Imputed numeric columns using mean.
+2025-11-27 21:13:43	INFO	tools.data_tools	Imputed categorical columns using mode.
+2025-11-27 21:13:43	INFO	tools.data_tools	Encoded 1 categorical columns with category codes.
+2025-11-27 21:13:43	INFO	tools.data_tools	Scaled 5 numeric columns with StandardScaler.
+2025-11-27 21:13:43	INFO	tools.data_tools	Detected 4 outlier rows using IQR.
+2025-11-27 21:13:43	INFO	tools.data_tools	Saving dataframe to data/processed/cleaned_1764258223263.csv
+2025-11-27 21:13:43	INFO	tools.eda_tools	Generated summary statistics for 6 columns.
+2025-11-27 21:13:44	INFO	tools.eda_tools	Saved correlation heatmap to outputs/eda\correlation_heatmap.png
+2025-11-27 21:13:46	INFO	tools.eda_tools	Saved 6 distribution plots to outputs/eda
+2025-11-27 21:13:46	INFO	tools.eda_tools	Computed top 5 feature relationships.
+2025-11-27 21:13:46	INFO	tools.ml_tools	Prepared features X shape=(147, 5), y length=147
+2025-11-27 21:13:46	INFO	tools.ml_tools	Splitting data: test_size=0.20, random_state=42
+2025-11-27 21:13:46	INFO	tools.ml_tools	Saved model to models\saved_model.pkl
+2025-11-27 21:23:19	INFO	tools.data_tools	Loading CSV from data/raw/sample.csv
+2025-11-27 21:23:19	INFO	tools.data_tools	Dropped 3 duplicate rows.
+2025-11-27 21:23:19	INFO	tools.data_tools	Imputed numeric columns using mean.
+2025-11-27 21:23:19	INFO	tools.data_tools	Imputed categorical columns using mode.
+2025-11-27 21:23:19	INFO	tools.data_tools	Encoded 1 categorical columns with category codes.
+2025-11-27 21:23:19	INFO	tools.data_tools	Scaled 5 numeric columns with StandardScaler.
+2025-11-27 21:23:19	INFO	tools.data_tools	Detected 4 outlier rows using IQR.
+2025-11-27 21:23:19	INFO	tools.data_tools	Saving dataframe to data/processed/cleaned_1764258799575.csv
+2025-11-27 21:23:20	INFO	tools.eda_tools	Generated summary statistics for 6 columns.
+2025-11-27 21:23:21	INFO	tools.eda_tools	Saved correlation heatmap to outputs/eda\correlation_heatmap.png
+2025-11-27 21:23:22	INFO	tools.eda_tools	Saved 6 distribution plots to outputs/eda
+2025-11-27 21:23:22	INFO	tools.eda_tools	Computed top 5 feature relationships.
+2025-11-27 21:23:22	INFO	tools.ml_tools	Prepared features X shape=(147, 5), y length=147
+2025-11-27 21:23:22	INFO	tools.ml_tools	Splitting data: test_size=0.20, random_state=42
+2025-11-27 21:26:05	INFO	tools.data_tools	Loading CSV from data/raw/sample.csv
+2025-11-27 21:26:05	INFO	tools.data_tools	Dropped 3 duplicate rows.
+2025-11-27 21:26:05	INFO	tools.data_tools	Imputed numeric columns using mean.
+2025-11-27 21:26:05	INFO	tools.data_tools	Imputed categorical columns using mode.
+2025-11-27 21:26:05	INFO	tools.data_tools	Encoded 1 categorical columns with category codes.
+2025-11-27 21:26:05	INFO	tools.data_tools	Scaled 5 numeric columns with StandardScaler.
+2025-11-27 21:26:05	INFO	tools.data_tools	Detected 4 outlier rows using IQR.
+2025-11-27 21:26:05	INFO	tools.data_tools	Saving dataframe to data/processed/cleaned_1764258965102.csv
+2025-11-27 21:26:05	INFO	tools.eda_tools	Generated summary statistics for 6 columns.
+2025-11-27 21:26:05	INFO	tools.eda_tools	Saved correlation heatmap to outputs/eda\correlation_heatmap.png
+2025-11-27 21:26:06	INFO	tools.eda_tools	Saved 6 distribution plots to outputs/eda
+2025-11-27 21:26:06	INFO	tools.eda_tools	Computed top 5 feature relationships.
+2025-11-27 21:26:06	INFO	tools.ml_tools	Prepared features X shape=(147, 5), y length=147
+2025-11-27 21:26:06	INFO	tools.ml_tools	Splitting data: test_size=0.20, random_state=42
+2025-11-27 21:26:06	INFO	tools.ml_tools	Saved model to models\saved_model.pkl
+2025-11-27 21:29:35	INFO	tools.data_tools	Loading CSV from data/raw/sample.csv
+2025-11-27 21:29:35	INFO	tools.data_tools	Dropped 3 duplicate rows.
+2025-11-27 21:29:35	INFO	tools.data_tools	Imputed numeric columns using mean.
+2025-11-27 21:29:35	INFO	tools.data_tools	Imputed categorical columns using mode.
+2025-11-27 21:29:35	INFO	tools.data_tools	Encoded 1 categorical columns with category codes.
+2025-11-27 21:29:35	INFO	tools.data_tools	Scaled 5 numeric columns with StandardScaler.
+2025-11-27 21:29:35	INFO	tools.data_tools	Detected 4 outlier rows using IQR.
+2025-11-27 21:29:35	INFO	tools.data_tools	Saving dataframe to data/processed/cleaned_1764259175490.csv
+2025-11-27 21:29:35	INFO	tools.eda_tools	Generated summary statistics for 6 columns.
+2025-11-27 21:29:36	INFO	tools.eda_tools	Saved correlation heatmap to outputs/eda\correlation_heatmap.png
+2025-11-27 21:29:37	INFO	tools.eda_tools	Saved 6 distribution plots to outputs/eda
+2025-11-27 21:29:37	INFO	tools.eda_tools	Computed top 5 feature relationships.
+2025-11-27 21:29:37	INFO	tools.ml_tools	Prepared features X shape=(147, 5), y length=147
+2025-11-27 21:29:37	INFO	tools.ml_tools	Splitting data: test_size=0.20, random_state=42
+2025-11-27 21:29:37	INFO	tools.ml_tools	Saved model to models\saved_model.pkl
+2025-11-27 21:44:19	INFO	tools.data_tools	Loading CSV from data/raw/sample.csv
+2025-11-27 21:44:19	INFO	tools.data_tools	Dropped 3 duplicate rows.
+2025-11-27 21:44:19	INFO	tools.data_tools	Imputed numeric columns using mean.
+2025-11-27 21:44:19	INFO	tools.data_tools	Imputed categorical columns using mode.
+2025-11-27 21:44:19	INFO	tools.data_tools	Encoded 1 categorical columns with category codes.
+2025-11-27 21:44:19	INFO	tools.data_tools	Scaled 5 numeric columns with StandardScaler.
+2025-11-27 21:44:19	INFO	tools.data_tools	Detected 4 outlier rows using IQR.
+2025-11-27 21:44:19	INFO	tools.data_tools	Saving dataframe to data/processed/cleaned_1764260059620.csv
+2025-11-27 21:44:19	INFO	tools.eda_tools	Generated summary statistics for 6 columns.
+2025-11-27 21:44:20	INFO	tools.eda_tools	Saved correlation heatmap to outputs/eda\correlation_heatmap.png
+2025-11-27 21:44:21	INFO	tools.eda_tools	Saved 6 distribution plots to outputs/eda
+2025-11-27 21:44:21	INFO	tools.eda_tools	Computed top 5 feature relationships.
+2025-11-27 21:44:21	INFO	tools.ml_tools	Prepared features X shape=(147, 5), y length=147
+2025-11-27 21:44:21	INFO	tools.ml_tools	Splitting data: test_size=0.20, random_state=42
+2025-11-27 21:44:21	INFO	tools.ml_tools	Saved model to models\saved_model.pkl
+2025-11-27 21:49:46	INFO	tools.data_tools	Loading CSV from data/raw/sample.csv
+2025-11-27 21:49:46	INFO	tools.data_tools	Dropped 3 duplicate rows.
+2025-11-27 21:49:46	INFO	tools.data_tools	Imputed numeric columns using mean.
+2025-11-27 21:49:46	INFO	tools.data_tools	Imputed categorical columns using mode.
+2025-11-27 21:49:46	INFO	tools.data_tools	Encoded 1 categorical columns with category codes.
+2025-11-27 21:49:46	INFO	tools.data_tools	Scaled 5 numeric columns with StandardScaler.
+2025-11-27 21:49:46	INFO	tools.data_tools	Detected 4 outlier rows using IQR.
+2025-11-27 21:49:46	INFO	tools.data_tools	Saving dataframe to data/processed/cleaned.csv
+2025-11-27 21:49:47	INFO	tools.eda_tools	Generated summary statistics for 6 columns.
+2025-11-27 21:49:47	INFO	tools.eda_tools	Saved correlation heatmap to outputs/eda\correlation_heatmap.png
+2025-11-27 21:49:48	INFO	tools.eda_tools	Saved 6 distribution plots to outputs/eda
+2025-11-27 21:49:48	INFO	tools.eda_tools	Computed top 5 feature relationships.
+2025-11-27 21:49:48	INFO	tools.ml_tools	Prepared features X shape=(147, 5), y length=147
+2025-11-27 21:49:48	INFO	tools.ml_tools	Splitting data: test_size=0.20, random_state=42
+2025-11-27 21:49:48	INFO	tools.ml_tools	Saved model to models\saved_model.pkl
+2025-11-27 22:07:52	INFO	tools.data_tools	Loading CSV from data/raw/sample.csv
+2025-11-27 22:07:52	INFO	tools.data_tools	Dropped 3 duplicate rows.
+2025-11-27 22:07:52	INFO	tools.data_tools	Imputed numeric columns using mean.
+2025-11-27 22:07:52	INFO	tools.data_tools	Imputed categorical columns using mode.
+2025-11-27 22:07:52	INFO	tools.data_tools	Encoded 1 categorical columns with category codes.
+2025-11-27 22:07:52	INFO	tools.data_tools	Scaled 5 numeric columns with StandardScaler.
+2025-11-27 22:07:52	INFO	tools.data_tools	Detected 4 outlier rows using IQR.
+2025-11-27 22:07:52	INFO	tools.data_tools	Saving dataframe to data/processed/cleaned.csv
+2025-11-27 22:07:52	INFO	tools.eda_tools	Generated summary statistics for 6 columns.
+2025-11-27 22:07:52	INFO	tools.eda_tools	Saved correlation heatmap to outputs/eda\correlation_heatmap.png
+2025-11-27 22:07:53	INFO	tools.eda_tools	Saved 6 distribution plots to outputs/eda
+2025-11-27 22:07:53	INFO	tools.eda_tools	Computed top 5 feature relationships.
+2025-11-27 22:07:53	INFO	tools.ml_tools	Prepared features X shape=(147, 5), y length=147
+2025-11-27 22:07:53	INFO	tools.ml_tools	Splitting data: test_size=0.20, random_state=42
+2025-11-27 22:07:54	INFO	tools.ml_tools	Saved model to models\saved_model.pkl
+2025-11-28 12:34:52	INFO	tools.data_tools	Loading CSV from data/raw/sample.csv
+2025-11-28 12:34:52	INFO	tools.data_tools	Dropped 3 duplicate rows.
+2025-11-28 12:34:52	INFO	tools.data_tools	Imputed numeric columns using mean.
+2025-11-28 12:34:52	INFO	tools.data_tools	Imputed categorical columns using mode.
+2025-11-28 12:34:52	INFO	tools.data_tools	Encoded 1 categorical columns with category codes.
+2025-11-28 12:34:52	INFO	tools.data_tools	Scaled 5 numeric columns with StandardScaler.
+2025-11-28 12:34:52	INFO	tools.data_tools	Detected 4 outlier rows using IQR.
+2025-11-28 12:34:52	INFO	tools.data_tools	Saving dataframe to data/processed/cleaned.csv
+2025-11-28 12:34:53	INFO	tools.eda_tools	Generated summary statistics for 6 columns.
+2025-11-28 12:34:54	INFO	tools.eda_tools	Saved correlation heatmap to outputs/eda\correlation_heatmap.png
+2025-11-28 12:34:55	INFO	tools.eda_tools	Saved 6 distribution plots to outputs/eda
+2025-11-28 12:34:55	INFO	tools.eda_tools	Computed top 5 feature relationships.
+2025-11-28 12:34:55	INFO	tools.ml_tools	Prepared features X shape=(147, 5), y length=147
+2025-11-28 12:34:55	INFO	tools.ml_tools	Splitting data: test_size=0.20, random_state=42
+2025-11-28 12:34:55	INFO	tools.ml_tools	Saved model to models\saved_model.pkl
+2025-11-28 12:35:57	INFO	tools.data_tools	Loading CSV from data/raw/sample.csv
+2025-11-28 12:35:57	INFO	tools.data_tools	Dropped 3 duplicate rows.
+2025-11-28 12:35:57	INFO	tools.data_tools	Imputed numeric columns using mean.
+2025-11-28 12:35:57	INFO	tools.data_tools	Imputed categorical columns using mode.
+2025-11-28 12:35:57	INFO	tools.data_tools	Encoded 1 categorical columns with category codes.
+2025-11-28 12:35:57	INFO	tools.data_tools	Scaled 5 numeric columns with StandardScaler.
+2025-11-28 12:35:57	INFO	tools.data_tools	Detected 4 outlier rows using IQR.
+2025-11-28 12:35:57	INFO	tools.data_tools	Saving dataframe to data/processed/cleaned.csv
+2025-11-28 12:35:57	INFO	tools.eda_tools	Generated summary statistics for 6 columns.
+2025-11-28 12:35:58	INFO	tools.eda_tools	Saved correlation heatmap to outputs/eda\correlation_heatmap.png
+2025-11-28 12:35:58	INFO	tools.eda_tools	Saved 6 distribution plots to outputs/eda
+2025-11-28 12:35:58	INFO	tools.eda_tools	Computed top 5 feature relationships.
+2025-11-28 12:35:58	INFO	tools.ml_tools	Prepared features X shape=(147, 5), y length=147
+2025-11-28 12:35:58	INFO	tools.ml_tools	Splitting data: test_size=0.20, random_state=42
+2025-11-28 12:35:59	INFO	tools.ml_tools	Saved model to models\saved_model.pkl

@@ -1,15 +1,9 @@
-# coordinator/coordinator.py
 """
-Coordinator Agent
-------------------
-The central orchestrator for the multi-agent Data Scientist Agentic AI system.
-
-Key features:
-- Loads config from YAML + .env (with env overrides)
-- Uses OpenRouter model specified in .env or openrouter.yaml
-- Delegates tasks to: DataCleanerAgent → AnalystAgent → MLAgent
-- Tracks episodic memory & reflexion memory
-- Optional LLM-driven pipeline planning
+Coordinator Agent (Hybrid Mode)
+---------------------------------------------
+Uses LLM only for global pipeline planning.
+Agents run in deterministic (mode A) operation,
+except QAAgent which can run in hybrid LLM mode.
 """
 
 from __future__ import annotations
@@ -24,29 +18,30 @@ from agents import (
     AnalystAgent,
     MLAgent,
 )
-from agents.memory import EpisodicMemory, ReflexionMemory
+from agents.qa_agent import QAAgent  # <-- NEW
 
+from agents.memory import EpisodicMemory, ReflexionMemory
 from llm.openrouter_client import OpenRouterClient
 
 
-# Load .env early
 load_dotenv()
-
 logger = logging.getLogger(__name__)
 logger.addHandler(logging.NullHandler())
 
 
-# ----------------------------------------------------------------------
-# Helper: Load YAML config
-# ----------------------------------------------------------------------
+# ----------------------------------------------------------
+# YAML Loader
+# ----------------------------------------------------------
 def load_yaml(path: str) -> Dict[str, Any]:
     if not os.path.exists(path):
-        raise FileNotFoundError(f"Config file not found: {path}")
-
+        raise FileNotFoundError(f"Config missing: {path}")
     with open(path, "r", encoding="utf-8") as f:
         return yaml.safe_load(f)
 
 
+# ----------------------------------------------------------
+# Coordinator
+# ----------------------------------------------------------
 class Coordinator:
     def __init__(
         self,
@@ -54,70 +49,86 @@ class Coordinator:
         openrouter_path: str = "config/openrouter.yaml",
     ):
 
-        # ------------------------------------------------------------------
-        # Load YAML configs
-        # ------------------------------------------------------------------
-        self.settings = load_yaml(settings_path).get("project", {})
-        self.agent_settings = load_yaml(settings_path).get("agents", {})
-        self.memory_settings = load_yaml(settings_path).get("memory", {})
+        # -----------------------------
+        # Load Settings
+        # -----------------------------
+        settings = load_yaml(settings_path)
+        self.project_settings = settings.get("project", {})
+        self.agent_settings = settings.get("agents", {})
+        self.memory_settings = settings.get("memory", {})
 
         openrouter_cfg = load_yaml(openrouter_path).get("openrouter", {})
 
-        # ------------------------------------------------------------------
-        # Initialize LLM Client (OpenRouter)
-        # ------------------------------------------------------------------
+        # -----------------------------
+        # LLM Client (used for pipeline planning + QAAgent)
+        # -----------------------------
         self.llm_client = OpenRouterClient(
             model=os.getenv("OPENROUTER_MODEL") or openrouter_cfg.get("model"),
-            base_url=openrouter_cfg.get("endpoint", "https://openrouter.ai/api/v1/chat/completions"),
+            base_url=openrouter_cfg.get(
+                "endpoint",
+                "https://openrouter.ai/api/v1/chat/completions"
+            ),
         )
 
-        # ------------------------------------------------------------------
-        # Setup Memory Systems
-        # ------------------------------------------------------------------
+        # -----------------------------
+        # Memory
+        # -----------------------------
         self.episodic_memory = EpisodicMemory(
             max_length=self.memory_settings["episodic"]["max_length"]
         )
-
         self.reflexion_memory = ReflexionMemory(
             memory_path=self.memory_settings["reflexion"]["storage_path"]
         )
 
-        # ------------------------------------------------------------------
-        # Initialize Agents with shared LLM client
-        # ------------------------------------------------------------------
+        # -----------------------------
+        # Agents (Hybrid Mode = deterministic + QA hybrid)
+        # -----------------------------
         self.agent_a = DataCleanerAgent(
-            llm_client=self.llm_client,
+            name="DataCleanerAgent",
+            mode="A",
+            use_llm_plan=False,
+            llm_client=None,
             max_retries=self.agent_settings["common"]["max_retries"],
             retry_delay=self.agent_settings["common"]["retry_delay"],
         )
 
         self.agent_b = AnalystAgent(
-            llm_client=self.llm_client,
+            name="AnalystAgent",
+            mode="A",
+            use_llm_plan=False,
+            llm_client=None,
             max_retries=self.agent_settings["common"]["max_retries"],
             retry_delay=self.agent_settings["common"]["retry_delay"],
         )
 
         self.agent_c = MLAgent(
+            name="MLAgent",
+            use_llm_plan=False,
+            mode="A",
+            llm_client=None,
+            max_retries=self.agent_settings["common"]["max_retries"],
+            retry_delay=self.agent_settings["common"]["retry_delay"],
+        )
+
+        # NEW: QA Agent (Mode B hybrid by default)
+        self.agent_q = QAAgent(
+            name="QAAgent",
+            mode="B",                  # enable hybrid LLM refinement
             llm_client=self.llm_client,
             max_retries=self.agent_settings["common"]["max_retries"],
             retry_delay=self.agent_settings["common"]["retry_delay"],
         )
 
-        logger.info("Coordinator initialized successfully.")
+        logger.info("Coordinator initialized (Hybrid Mode).")
 
-    # ----------------------------------------------------------------------
-    # Optional: LLM-based pipeline planning
-    # ----------------------------------------------------------------------
+    # ----------------------------------------------------------
+    # LLM Global Pipeline Planner
+    # ----------------------------------------------------------
     def _plan_pipeline(self, request: str) -> Dict[str, Any]:
-        """
-        Uses LLM to determine workflow pipeline.
-        Returns a JSON dict with "steps": [...]
-        """
 
         memory_block = self.episodic_memory.get_context_block()
         lessons = self.reflexion_memory.get_recent_lessons()
 
-        # Use prompt file from llm/prompts
         with open("llm/prompts/coordinator_prompt.txt", "r", encoding="utf-8") as f:
             system_prompt = f.read()
 
@@ -131,26 +142,35 @@ Recent Episodic Memory:
 Reflexion Lessons:
 {lessons}
 
-Respond with ONLY valid JSON.
+Return ONLY valid JSON:
+{{
+   "steps":[
+       {{"agent":"cleaner"}},
+       {{"agent":"analyst"}},
+       {{"agent":"ml"}}
+   ]
+}}
 """
 
         try:
             resp = self.llm_client.chat_completion(
-                prompt=prompt,
                 system_prompt=system_prompt,
-                temperature=0.2,
+                prompt=prompt,
                 max_tokens=300,
+                temperature=0.2
             )
             content = resp["choices"][0]["message"]["content"]
+
             import json
             plan = json.loads(content)
 
             if "steps" not in plan:
-                raise ValueError("Invalid LLM response: missing 'steps'")
+                raise ValueError("Invalid LLM plan")
+
             return plan
 
         except Exception as e:
-            logger.warning("LLM planning failed (%s). Using fallback order.", e)
+            logger.warning("LLM planning failed → using fallback. Error=%s", e)
             return {
                 "steps": [
                     {"agent": "cleaner"},
@@ -159,66 +179,76 @@ Respond with ONLY valid JSON.
                 ]
             }
 
-    # ----------------------------------------------------------------------
-    # Main Pipeline Runner
-    # ----------------------------------------------------------------------
+    # ----------------------------------------------------------
+    # Main Execution Flow
+    # ----------------------------------------------------------
     def run(self, request: str, dataset_path: str, target_column: Optional[str] = None):
-        """
-        Execute multi-agent workflow.
-        """
 
-        logger.info("Coordinator starting workflow")
+        logger.info("Coordinator: starting workflow")
+
         context = {
-            "dataset_path": dataset_path,
-            "target_column": target_column,
+            "data_path": dataset_path,
+            "target_column": target_column
         }
 
-        # LLM-based or fallback plan
         plan = self._plan_pipeline(request)
         steps = plan.get("steps", [])
 
         final_outputs = {}
         df_cache = None
 
-        # --------------------------------------------------------------
-        # Execute agents in LLM-determined order
-        # --------------------------------------------------------------
         for step in steps:
-            agent_key = step.get("agent")
+            agent_key = step["agent"]
 
+            # ---------------- CLEANER ----------------
             if agent_key == "cleaner":
-                logger.info("Running DataCleanerAgent")
                 res = self.agent_a.run(context, tools=self._load_data_tools())
+                final_outputs["cleaner"] = res
                 self._record_memory("DataCleanerAgent", res)
+
                 if res.success:
                     df_cache = res.outputs.get("dataframe")
                     context["dataframe"] = df_cache
-                final_outputs["cleaner"] = res
 
+            # ---------------- ANALYST ----------------
             elif agent_key == "analyst":
-                logger.info("Running AnalystAgent")
                 if df_cache is not None:
                     context["dataframe"] = df_cache
+
                 res = self.agent_b.run(context, tools=self._load_eda_tools())
-                self._record_memory("AnalystAgent", res)
                 final_outputs["analyst"] = res
+                self._record_memory("AnalystAgent", res)
 
+            # ---------------- ML ----------------
             elif agent_key == "ml":
-                logger.info("Running MLAgent")
                 if df_cache is not None:
                     context["dataframe"] = df_cache
-                res = self.agent_c.run(context, tools=self._load_ml_tools())
-                self._record_memory("MLAgent", res)
-                final_outputs["ml"] = res
 
-        logger.info("Workflow completed.")
+                res = self.agent_c.run(context, tools=self._load_ml_tools())
+                final_outputs["ml"] = res
+                self._record_memory("MLAgent", res)
+
+        logger.info("Coordinator: workflow complete.")
         return final_outputs
 
-    # ----------------------------------------------------------------------
+    # ----------------------------------------------------------
+    # Q&A Entry Point (NEW)
+    # ----------------------------------------------------------
+    def answer_question(self, question: str):
+        """
+        Uses QAAgent over the already-generated insight JSONs.
+        Does NOT rerun the full pipeline.
+        """
+        logger.info("Coordinator: QAAgent answering question.")
+        ctx = {"question": question}
+        res = self.agent_q.run(ctx, tools=None)
+        # We don't record QA into episodic memory by default, but you could.
+        return res
+
+    # ----------------------------------------------------------
     # Memory Recorder
-    # ----------------------------------------------------------------------
+    # ----------------------------------------------------------
     def _record_memory(self, agent_name: str, result):
-        # Episodic Memory
         self.episodic_memory.add_episode(
             agent_name=agent_name,
             thought=result.messages[0] if result.messages else "",
@@ -227,20 +257,19 @@ Respond with ONLY valid JSON.
             success=result.success,
         )
 
-        # Reflexion Memory
         if not result.success:
             self.reflexion_memory.add_entry(
                 agent_name,
                 {
                     "success": False,
                     "error": result.error,
-                    "lesson": "Consider adjusting cleaning or preprocessing strategy.",
+                    "lesson": "Fix preprocessing / planning in next iteration.",
                 },
             )
 
-    # ----------------------------------------------------------------------
-    # Lazy Tool Loaders
-    # ----------------------------------------------------------------------
+    # ----------------------------------------------------------
+    # Tool Loaders
+    # ----------------------------------------------------------
     def _load_data_tools(self):
         from tools import data_tools
         return data_tools

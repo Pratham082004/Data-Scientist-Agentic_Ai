@@ -1,0 +1,9 @@
+[
+    {
+        "agent": "MLAgent",
+        "timestamp": "2025-11-27T21:23:22.068368",
+        "success": false,
+        "error": "MLAgent: No valid CV scores produced by any model.",
+        "lesson": "Fix preprocessing / planning in next iteration."
+    }
+]

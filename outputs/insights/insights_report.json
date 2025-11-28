@@ -1,0 +1,142 @@
+{
+    "overview": {
+        "rows": 147,
+        "columns": 6,
+        "missing_values": 0,
+        "columns_list": [
+            "SepalLengthCm",
+            "SepalWidthCm",
+            "PetalLengthCm",
+            "PetalWidthCm",
+            "Species",
+            "_is_outlier"
+        ],
+        "dtypes": {
+            "SepalLengthCm": "float64",
+            "SepalWidthCm": "float64",
+            "PetalLengthCm": "float64",
+            "PetalWidthCm": "float64",
+            "Species": "float64",
+            "_is_outlier": "bool"
+        }
+    },
+    "summary_statistics": {
+        "SepalLengthCm": {
+            "count": 147.0,
+            "unique": "",
+            "top": "",
+            "freq": "",
+            "mean": -4.833624052789797e-17,
+            "std": 1.0034188133917428,
+            "min": -1.883710170666137,
+            "25%": -0.9155094885405356,
+            "50%": -0.06833389168063382,
+            "75%": 0.6578166199135681,
+            "max": 2.4731928988990712
+        },
+        "SepalWidthCm": {
+            "count": 147.0,
+            "unique": "",
+            "top": "",
+            "freq": "",
+            "mean": 1.691768418476429e-16,
+            "std": 1.003418813391743,
+            "min": -2.4241893105161254,
+            "25%": -0.5873035958466906,
+            "50%": -0.1280821671793312,
+            "75%": 0.5607499758217067,
+            "max": 3.086467833492182
+        },
+        "PetalLengthCm": {
+            "count": 147.0,
+            "unique": "",
+            "top": "",
+            "freq": "",
+            "mean": -2.416812026394899e-16,
+            "std": 1.0034188133917428,
+            "min": -1.5859019124034095,
+            "25%": -1.2436544235999334,
+            "50%": 0.35350052414962213,
+            "75%": 0.7527892610870106,
+            "max": 1.7795317274974394
+        },
+        "PetalWidthCm": {
+            "count": 147.0,
+            "unique": "",
+            "top": "",
+            "freq": "",
+            "mean": -3.383536836952858e-16,
+            "std": 1.0034188133917428,
+            "min": -1.4680991368450451,
+            "25%": -1.2033008876226874,
+            "50%": 0.12069035848910163,
+            "75%": 0.7826859815449961,
+            "max": 1.7094798538232483
+        },
+        "Species": {
+            "count": 147.0,
+            "unique": "",
+            "top": "",
+            "freq": "",
+            "mean": 1.450087215836939e-16,
+            "std": 1.0034188133917428,
+            "min": -1.2394596988484274,
+            "25%": -1.2394596988484274,
+            "50%": -0.008374727694921816,
+            "75%": 1.222710243458584,
+            "max": 1.222710243458584
+        },
+        "_is_outlier": {
+            "count": 147.0,
+            "unique": 2,
+            "top": false,
+            "freq": 143,
+            "mean": "",
+            "std": "",
+            "min": "",
+            "25%": "",
+            "50%": "",
+            "75%": "",
+            "max": ""
+        }
+    },
+    "correlation_heatmap": "outputs/eda\\correlation_heatmap.png",
+    "distribution_plots": [
+        "outputs/eda\\dist_SepalLengthCm.png",
+        "outputs/eda\\dist_SepalWidthCm.png",
+        "outputs/eda\\dist_PetalLengthCm.png",
+        "outputs/eda\\dist_PetalWidthCm.png",
+        "outputs/eda\\dist_Species.png",
+        "outputs/eda\\dist__is_outlier.png"
+    ],
+    "top_feature_relationships": {
+        "top_relationships": [
+            {
+                "feature_1": "PetalLengthCm",
+                "feature_2": "PetalWidthCm",
+                "correlation": 0.9618827517033716
+            },
+            {
+                "feature_1": "PetalWidthCm",
+                "feature_2": "Species",
+                "correlation": 0.9556932449750067
+            },
+            {
+                "feature_1": "PetalLengthCm",
+                "feature_2": "Species",
+                "correlation": 0.9483385082992373
+            },
+            {
+                "feature_1": "SepalLengthCm",
+                "feature_2": "PetalLengthCm",
+                "correlation": 0.8713045563091526
+            },
+            {
+                "feature_1": "SepalLengthCm",
+                "feature_2": "PetalWidthCm",
+                "correlation": 0.8170583021640012
+            }
+        ]
+    },
+    "natural_language_summary": "The dataset has 147 rows and 6 columns. 0 values are missing. Key variables include: SepalLengthCm, SepalWidthCm, PetalLengthCm, PetalWidthCm, Species ..."
+}

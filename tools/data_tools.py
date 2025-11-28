@@ -1,24 +1,22 @@
 # tools/data_tools.py
 """
 Data tools: loading, cleaning, encoding, scaling, outlier detection.
-
-These functions are called by DataCleanerAgent (Agent A).
+Used by DataCleanerAgent.
 """
 
 from __future__ import annotations
 from typing import Optional
 
+import os
+import time
 import numpy as np
 import pandas as pd
 from sklearn.preprocessing import StandardScaler
 
-from .file_manager import ensure_dir, default_processed_path
+from .file_manager import ensure_dir
 from .logger import get_logger
 
 logger = get_logger(__name__)
-
-# Allow agents to reference this as default path
-default_processed_path = default_processed_path()
 
 
 # ---------- I/O ----------
@@ -30,11 +28,27 @@ def load_csv(path: str) -> pd.DataFrame:
 
 
 def save_dataframe(df: pd.DataFrame, path: Optional[str] = None) -> str:
+    """
+    FIXED VERSION:
+    - Always saves to a FILE, never a folder.
+    - Generates a unique timestamp filename by default.
+    - Ensures the 'data/processed' directory exists.
+    """
+
+    # Ensure processed folder exists
+    processed_dir = "data/processed"
+    ensure_dir(processed_dir)
+
+    # Auto-generate a unique timestamped file if no path is given
     if path is None:
-        path = default_processed_path
-    ensure_dir(path.rsplit("/", 1)[0])
+        ts = int(time.time() * 1000)
+        path = f"{processed_dir}/cleaned_{ts}.csv"
+
     logger.info("Saving dataframe to %s", path)
+
+    # Save file (path is always a file, NOT a folder)
     df.to_csv(path, index=False)
+
     return path
 
 

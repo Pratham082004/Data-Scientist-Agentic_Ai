@@ -1,93 +1,83 @@
 {
   "dataset_shape": [
-    147,
-    6
+    100000,
+    41
   ],
   "train_shape": [
-    117,
-    5
+    80000,
+    40
   ],
   "test_shape": [
-    30,
-    5
+    20000,
+    40
   ],
-  "target_column": "Species",
+  "target_column": "Completed",
   "problem_type": "regression",
   "models_attempted": [
     "LinReg",
-    "RFReg"
+    "RFReg",
+    "LGBMReg",
+    "SGDRegressor"
   ],
+  "cv_strategy": {
+    "n_train": 80000,
+    "n_splits": 0,
+    "cv_downsampled": false
+  },
   "cv_scores": {
-    "LinReg": 0.9193146884530075,
-    "RFReg": 0.9585374737832995
+    "LinReg": 0.06484654400973344,
+    "RFReg": 0.05033085039781349,
+    "SGDRegressor": 0.058423024144433344
   },
   "best_model": {
-    "name": "RFReg",
-    "score": 0.9585374737832995
+    "name": "LinReg",
+    "score": 0.06484654400973344
   },
-  "feature_importances": [
-    {
-      "feature": "PetalLengthCm",
-      "importance": 0.6216010913045448
-    },
-    {
-      "feature": "PetalWidthCm",
-      "importance": 0.3682998162016475
-    },
-    {
-      "feature": "SepalWidthCm",
-      "importance": 0.006026621292541322
-    },
-    {
-      "feature": "SepalLengthCm",
-      "importance": 0.004072471201266473
-    },
-    {
-      "feature": "_is_outlier",
-      "importance": 0.0
-    }
-  ],
+  "feature_importances": null,
   "sample_predictions": [
     {
-      "true": 1.222710243458584,
-      "pred": 1.0811354717759274
+      "true": -1.0195918848570378,
+      "pred": -0.17620386652122683
     },
     {
-      "true": -0.008374727694921816,
-      "pred": -0.008374727694921808
+      "true": -1.0195918848570378,
+      "pred": -0.34490226047815287
     },
     {
-      "true": 1.222710243458584,
-      "pred": 1.2227102434585804
+      "true": 0.9807845814114293,
+      "pred": 0.2428212278119737
     },
     {
-      "true": -1.2394596988484274,
-      "pred": -1.2394596988484297
+      "true": -1.0195918848570378,
+      "pred": -0.39190413032168725
     },
     {
-      "true": 1.222710243458584,
-      "pred": 0.022402396583915726
+      "true": -1.0195918848570378,
+      "pred": -0.3886641111696713
     },
     {
-      "true": -1.2394596988484274,
-      "pred": -1.2394596988484297
+      "true": 0.9807845814114293,
+      "pred": 0.4369395373684646
     },
     {
-      "true": -0.008374727694921816,
-      "pred": -0.008374727694921808
+      "true": 0.9807845814114293,
+      "pred": 0.32123902685627514
     },
     {
-      "true": -1.2394596988484274,
-      "pred": -1.2394596988484297
+      "true": -1.0195918848570378,
+      "pred": 0.3448895908159962
     },
     {
-      "true": -0.008374727694921816,
-      "pred": 1.1057571711989973
+      "true": -1.0195918848570378,
+      "pred": 0.3480908516253558
     },
     {
-      "true": -1.2394596988484274,
-      "pred": -1.2394596988484297
+      "true": 0.9807845814114293,
+      "pred": 0.028286735665058807
     }
   ],
-  "warnings": []
+  "warnings": [
+    "\u26a0 No valid CV scores \u2192 using train/test scoring fallback.",
+    "Fallback failed for LGBMReg: Unable to avoid copy while creating an array as requested.\nIf using `np.array(obj, copy=False)` replace it with `np.asarray(obj)` to allow a copy when needed (no behavior change in NumPy 1.x).\nFor more details, see https://numpy.org/devdocs/numpy_2_0_migration_guide.html#adapting-to-changes-in-the-copy-keyword."
+  ]
 }

@@ -1,15 +1,18 @@
 """
-MLAgent — Pure Python AutoML v2 (Option A + Option B)
+MLAgent — Pure Python AutoML v2 (Balanced Auto-Mode)
 ------------------------------------------------------
 
 ✔ Deterministic AutoML (Mode A)
-✔ Safe CV with auto-fold reduction
+✔ Balanced speed vs accuracy (Option B)
+✔ Auto model selection based on dataset size
+✔ Auto CV folds (5 / 3 / 2 / none)
+✔ Downsampled CV for very large datasets
 ✔ Handles missing-class folds
-✔ Fallback scoring
-✔ Feature importance extraction
+✔ Fallback scoring when CV fails
+✔ Feature importance extraction (tree models)
 ✔ Sample prediction extraction
 ✔ Full ML Insight JSON report
-✔ Saves JSON to: outputs/ml/ml_insights_<time>.json
+✔ Saves JSON to: outputs/ml/ml_insights_report.json
 ✔ No estimators_ usage anywhere
 """
 
@@ -25,7 +28,8 @@ import pandas as pd
 
 from sklearn.base import clone
 from sklearn.model_selection import KFold, StratifiedKFold
-from sklearn.linear_model import LogisticRegression, LinearRegression
+from sklearn.linear_model import LogisticRegression, LinearRegression, SGDRegressor
+from sklearn.linear_model import SGDClassifier
 from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
 from sklearn.metrics import accuracy_score, r2_score
 
@@ -33,6 +37,19 @@ from .llm_agent_base import LLMAgentBase, AgentResult
 
 logger = logging.getLogger(__name__)
 logger.addHandler(logging.NullHandler())
+
+# Optional gradient-boosting libraries
+try:
+    import lightgbm as lgb  # type: ignore
+    HAS_LGB = True
+except Exception:
+    HAS_LGB = False
+
+try:
+    import xgboost as xgb  # type: ignore
+    HAS_XGB = True
+except Exception:
+    HAS_XGB = False
 
 
 # =====================================================================
@@ -60,10 +77,16 @@ class MLAgent(LLMAgentBase):
     # =====================================================================
     # Feature Importance Helper
     # =====================================================================
-    def _extract_feature_importance(self, model, X_cols):
+    def _extract_feature_importance(self, model, X_cols: List[str]):
+        """
+        Generic feature_importances_ reader.
+        Only works for tree-based models (RF, LGBM, XGB, etc.).
+        """
         try:
             if hasattr(model, "feature_importances_"):
-                values = model.feature_importances_
+                values = getattr(model, "feature_importances_", None)
+                if values is None:
+                    return None
                 return sorted(
                     list(zip(X_cols, values)),
                     key=lambda x: float(x[1]),
@@ -74,28 +97,167 @@ class MLAgent(LLMAgentBase):
         return None
 
     # =====================================================================
-    # Safe CV splitter
+    # Decide CV folds (Balanced Auto-Mode)
     # =====================================================================
-    def _make_cv_splitter(self, y: pd.Series, problem_type: str):
-        n_samples = len(y)
-
-        if n_samples < 60:
-            n_splits = 2
-        elif n_samples < 120:
-            n_splits = 3
+    def _decide_cv_splits(self, n_samples: int) -> int:
+        """
+        Balanced strategy:
+            - < 15k  → 5 folds
+            - 15–40k → 3 folds
+            - 40–80k → 2 folds
+            - > 80k  → no CV (0 → use fallback scoring only)
+        """
+        if n_samples < 15000:
+            return 5
+        elif n_samples < 40000:
+            return 3
+        elif n_samples < 80000:
+            return 2
         else:
-            n_splits = 5
+            return 0  # no CV, only train/test scoring
+
+    def _make_cv_splitter(
+        self,
+        y: pd.Series,
+        problem_type: str,
+        n_splits: int,
+    ):
+        if n_splits < 2:
+            return None
 
         if problem_type == "classification":
             try:
-                return StratifiedKFold(n_splits=n_splits, shuffle=True, random_state=42)
+                return StratifiedKFold(
+                    n_splits=n_splits, shuffle=True, random_state=42
+                )
             except Exception:
                 pass
 
         return KFold(n_splits=n_splits, shuffle=True, random_state=42)
 
     # =====================================================================
-    # Deterministic AutoML Pipeline
+    # Decide model suite based on dataset size
+    # =====================================================================
+    def _build_model_suite(
+        self, problem_type: str, n_rows: int
+    ) -> Dict[str, Any]:
+        """
+        Balanced strategy:
+            - Small (<20k): richer models (RF with more trees, XGB/LGB if available)
+            - Medium (20–80k): moderate RF/LGB, maybe XGB
+            - Large (>80k): speed-friendly configs (fewer trees, SGD, LGB)
+        """
+        models: Dict[str, Any] = {}
+
+        if problem_type == "classification":
+            # Always include a linear baseline
+            models["LogReg"] = LogisticRegression(max_iter=300)
+
+            # RandomForest tuned by dataset size
+            if n_rows < 20000:
+                models["RF"] = RandomForestClassifier(
+                    n_estimators=300, max_depth=None, random_state=42
+                )
+            elif n_rows < 80000:
+                models["RF"] = RandomForestClassifier(
+                    n_estimators=150, max_depth=None, random_state=42
+                )
+            else:
+                models["RF"] = RandomForestClassifier(
+                    n_estimators=80, max_depth=15, random_state=42
+                )
+
+            # LightGBM if available
+            if HAS_LGB:
+                if n_rows < 50000:
+                    models["LGBM"] = lgb.LGBMClassifier(
+                        n_estimators=200,
+                        learning_rate=0.1,
+                        num_leaves=31,
+                        random_state=42,
+                    )
+                else:
+                    models["LGBM"] = lgb.LGBMClassifier(
+                        n_estimators=120,
+                        learning_rate=0.1,
+                        num_leaves=31,
+                        random_state=42,
+                    )
+
+            # XGBoost only for not-too-large datasets
+            if HAS_XGB and n_rows < 50000:
+                models["XGB"] = xgb.XGBClassifier(
+                    n_estimators=200,
+                    max_depth=4,
+                    learning_rate=0.1,
+                    subsample=0.9,
+                    colsample_bytree=0.9,
+                    tree_method="hist",
+                    random_state=42,
+                )
+
+            # SGD for very large data
+            if n_rows > 80000:
+                models["SGDClassifier"] = SGDClassifier(
+                    loss="log_loss",
+                    max_iter=1000,
+                    random_state=42,
+                )
+
+        else:
+            # Regression
+            models["LinReg"] = LinearRegression()
+
+            if n_rows < 20000:
+                models["RFReg"] = RandomForestRegressor(
+                    n_estimators=300, max_depth=None, random_state=42
+                )
+            elif n_rows < 80000:
+                models["RFReg"] = RandomForestRegressor(
+                    n_estimators=150, max_depth=None, random_state=42
+                )
+            else:
+                models["RFReg"] = RandomForestRegressor(
+                    n_estimators=80, max_depth=15, random_state=42
+                )
+
+            if HAS_LGB:
+                if n_rows < 50000:
+                    models["LGBMReg"] = lgb.LGBMRegressor(
+                        n_estimators=200,
+                        learning_rate=0.1,
+                        num_leaves=31,
+                        random_state=42,
+                    )
+                else:
+                    models["LGBMReg"] = lgb.LGBMRegressor(
+                        n_estimators=120,
+                        learning_rate=0.1,
+                        num_leaves=31,
+                        random_state=42,
+                    )
+
+            if HAS_XGB and n_rows < 50000:
+                models["XGBReg"] = xgb.XGBRegressor(
+                    n_estimators=200,
+                    max_depth=4,
+                    learning_rate=0.1,
+                    subsample=0.9,
+                    colsample_bytree=0.9,
+                    tree_method="hist",
+                    random_state=42,
+                )
+
+            if n_rows > 80000:
+                models["SGDRegressor"] = SGDRegressor(
+                    max_iter=1000,
+                    random_state=42,
+                )
+
+        return models
+
+    # =====================================================================
+    # Deterministic AutoML Pipeline (Balanced)
     # =====================================================================
     def _run_deterministic(self, context: Dict[str, Any], tools: Any) -> AgentResult:
         messages: List[str] = []
@@ -117,6 +279,8 @@ class MLAgent(LLMAgentBase):
 
         if df.empty:
             raise ValueError("Empty dataframe — cannot train.")
+
+        n_rows_total = int(df.shape[0])
 
         # -------------------------------------
         # Detect / validate target
@@ -177,54 +341,71 @@ class MLAgent(LLMAgentBase):
         )
 
         # -------------------------------------
-        # Model suite
+        # Build model suite (Balanced auto-mode)
         # -------------------------------------
-        if problem_type == "classification":
-            models = {
-                "LogReg": LogisticRegression(max_iter=300),
-                "RF": RandomForestClassifier(n_estimators=200, random_state=42),
-            }
-        else:
-            models = {
-                "LinReg": LinearRegression(),
-                "RFReg": RandomForestRegressor(n_estimators=200, random_state=42),
-            }
+        models = self._build_model_suite(problem_type, n_rows_total)
+        messages.append(f"Models attempted: {list(models.keys())}")
 
         # -------------------------------------
-        # Cross-validation (CV)
+        # Decide CV strategy & CV dataset
         # -------------------------------------
-        cv_splitter = self._make_cv_splitter(y_train, problem_type)
+        n_train = len(y_train)
+        n_splits = self._decide_cv_splits(n_train)
+
         cv_scores: Dict[str, float] = {}
 
-        for name, model in models.items():
-            fold_scores: List[float] = []
+        # Optionally downsample for CV if extremely large
+        if n_splits >= 2 and n_train > 100_000:
+            cv_sample_size = min(25_000, n_train)
+            rng = np.random.default_rng(seed=42)
+            sample_idx = rng.choice(n_train, size=cv_sample_size, replace=False)
+            X_train_cv = X_train.iloc[sample_idx]
+            y_train_cv = y_train.iloc[sample_idx]
+            messages.append(
+                f"Downsampled for CV: {cv_sample_size} of {n_train} rows "
+                f"(splits={n_splits})"
+            )
+        else:
+            X_train_cv = X_train
+            y_train_cv = y_train
 
-            for fold, (tr, val) in enumerate(cv_splitter.split(X_train, y_train)):
-                X_tr, X_val = X_train.iloc[tr], X_train.iloc[val]
-                y_tr, y_val = y_train.iloc[tr], y_train.iloc[val]
-
-                try:
-                    m = clone(model)
-                    m.fit(X_tr, y_tr)
-                    preds = m.predict(X_val)
-
-                    if problem_type == "classification":
-                        fold_scores.append(float(accuracy_score(y_val, preds)))
-                    else:
-                        fold_scores.append(float(r2_score(y_val, preds)))
-
-                except Exception as e:
-                    messages.append(f"Fold {fold} failed for {name}: {e}")
-
-            if fold_scores:
-                cv_scores[name] = float(np.mean(fold_scores))
-                messages.append(f"CV {name}: {cv_scores[name]:.4f}")
+        cv_splitter = self._make_cv_splitter(y_train_cv, problem_type, n_splits)
 
         # -------------------------------------
-        # Fallback single-shot scoring
+        # Cross-validation (if enabled)
+        # -------------------------------------
+        if cv_splitter is not None:
+            for name, model in models.items():
+                fold_scores: List[float] = []
+
+                for fold, (tr, val) in enumerate(cv_splitter.split(X_train_cv, y_train_cv)):
+                    X_tr, X_val = X_train_cv.iloc[tr], X_train_cv.iloc[val]
+                    y_tr, y_val = y_train_cv.iloc[tr], y_train_cv.iloc[val]
+
+                    try:
+                        m = clone(model)
+                        m.fit(X_tr, y_tr)
+                        preds = m.predict(X_val)
+
+                        if problem_type == "classification":
+                            fold_scores.append(float(accuracy_score(y_val, preds)))
+                        else:
+                            fold_scores.append(float(r2_score(y_val, preds)))
+
+                    except Exception as e:
+                        messages.append(f"Fold {fold} failed for {name}: {e}")
+
+                if fold_scores:
+                    cv_scores[name] = float(np.mean(fold_scores))
+                    messages.append(
+                        f"CV {name} (n_splits={n_splits}): {cv_scores[name]:.4f}"
+                    )
+
+        # -------------------------------------
+        # Fallback single-shot scoring (or large datasets w/ no CV)
         # -------------------------------------
         if not cv_scores:
-            messages.append("⚠ CV failed → fallback scoring")
+            messages.append("⚠ No valid CV scores → using train/test scoring fallback.")
 
             for name, model in models.items():
                 try:
@@ -283,6 +464,11 @@ class MLAgent(LLMAgentBase):
             "target_column": str(target),
             "problem_type": problem_type,
             "models_attempted": list(models.keys()),
+            "cv_strategy": {
+                "n_train": n_train,
+                "n_splits": n_splits,
+                "cv_downsampled": bool(n_splits >= 2 and n_train > 100_000),
+            },
             "cv_scores": {k: float(v) for k, v in cv_scores.items()},
             "best_model": {
                 "name": best_name,
@@ -301,17 +487,20 @@ class MLAgent(LLMAgentBase):
         }
 
         # -------------------------------------
-        # Save ML insight JSON → outputs/ml/ml_insights_<time>.json
+        # Save ML insight JSON → outputs/ml/ml_insights_report.json
         # -------------------------------------
         ml_insights_path: Optional[str] = None
         try:
             os.makedirs("outputs/ml", exist_ok=True)
-            ts = int(time.time() * 1000)  # ms timestamp
-            ml_insights_path = os.path.join(
-                "outputs", "ml", f"ml_insights_report.json"
-            )
+            # You can switch to timestamped files if you want:
+            # ts = int(time.time() * 1000)
+            # filename = f"ml_insights_{ts}.json"
+            filename = "ml_insights_report.json"
+            ml_insights_path = os.path.join("outputs", "ml", filename)
+
             with open(ml_insights_path, "w", encoding="utf-8") as f:
                 json.dump(ml_insights, f, indent=2, default=float)
+
             messages.append(f"ML insights JSON saved → {ml_insights_path}")
         except Exception as e:
             messages.append(f"Failed to save ML insights JSON: {e}")

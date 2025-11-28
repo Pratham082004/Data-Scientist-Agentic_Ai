@@ -204,3 +204,32 @@
 2025-11-28 12:35:58	INFO	tools.ml_tools	Prepared features X shape=(147, 5), y length=147
 2025-11-28 12:35:58	INFO	tools.ml_tools	Splitting data: test_size=0.20, random_state=42
 2025-11-28 12:35:59	INFO	tools.ml_tools	Saved model to models\saved_model.pkl
+2025-11-28 14:54:03	INFO	tools.data_tools	Loading CSV from data/raw/sample.csv
+2025-11-28 14:54:04	INFO	tools.data_tools	Dropped 0 duplicate rows.
+2025-11-28 14:54:04	INFO	tools.data_tools	Imputed numeric columns using mean.
+2025-11-28 14:54:04	INFO	tools.data_tools	Imputed categorical columns using mode.
+2025-11-28 14:54:04	INFO	tools.data_tools	Encoded 17 categorical columns with category codes.
+2025-11-28 14:54:04	INFO	tools.data_tools	Scaled 40 numeric columns with StandardScaler.
+2025-11-28 14:54:04	INFO	tools.data_tools	Detected 37099 outlier rows using IQR.
+2025-11-28 14:54:04	INFO	tools.data_tools	Saving dataframe to data/processed/cleaned.csv
+2025-11-28 14:54:08	INFO	tools.eda_tools	Generated summary statistics for 41 columns.
+2025-11-28 14:54:08	INFO	tools.eda_tools	Saved correlation heatmap to outputs/eda\correlation_heatmap.png
+2025-11-28 14:54:16	INFO	tools.eda_tools	Saved 41 distribution plots to outputs/eda
+2025-11-28 14:54:16	INFO	tools.eda_tools	Computed top 5 feature relationships.
+2025-11-28 14:54:16	INFO	tools.ml_tools	Prepared features X shape=(100000, 40), y length=100000
+2025-11-28 14:54:16	INFO	tools.ml_tools	Splitting data: test_size=0.20, random_state=42
+2025-11-28 15:09:08	INFO	tools.data_tools	Loading CSV from data/raw/sample.csv
+2025-11-28 15:09:08	INFO	tools.data_tools	Dropped 0 duplicate rows.
+2025-11-28 15:09:09	INFO	tools.data_tools	Imputed numeric columns using mean.
+2025-11-28 15:09:09	INFO	tools.data_tools	Imputed categorical columns using mode.
+2025-11-28 15:09:09	INFO	tools.data_tools	Encoded 17 categorical columns with category codes.
+2025-11-28 15:09:09	INFO	tools.data_tools	Scaled 40 numeric columns with StandardScaler.
+2025-11-28 15:09:09	INFO	tools.data_tools	Detected 37099 outlier rows using IQR.
+2025-11-28 15:09:09	INFO	tools.data_tools	Saving dataframe to data/processed/cleaned.csv
+2025-11-28 15:09:12	INFO	tools.eda_tools	Generated summary statistics for 41 columns.
+2025-11-28 15:09:12	INFO	tools.eda_tools	Saved correlation heatmap to outputs/eda\correlation_heatmap.png
+2025-11-28 15:09:18	INFO	tools.eda_tools	Saved 41 distribution plots to outputs/eda
+2025-11-28 15:09:19	INFO	tools.eda_tools	Computed top 5 feature relationships.
+2025-11-28 15:09:19	INFO	tools.ml_tools	Prepared features X shape=(100000, 40), y length=100000
+2025-11-28 15:09:19	INFO	tools.ml_tools	Splitting data: test_size=0.20, random_state=42
+2025-11-28 15:10:33	INFO	tools.ml_tools	Saved model to models\saved_model.pkl

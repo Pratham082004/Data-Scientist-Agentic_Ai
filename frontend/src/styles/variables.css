@@ -1,0 +1,24 @@
+:root {
+  /* Light mode */
+  --primary: #1976d2;
+  --primary-light: #63a4ff;
+  --primary-dark: #004ba0;
+
+  --bg-color: #f7f9fc;
+  --card-bg: #ffffff;
+  --text-color: #333;
+  --muted-text: #7c7c7c;
+
+  --border-radius: 12px;
+  --transition: 0.25s ease;
+}
+
+[data-theme="dark"] {
+  /* Dark mode */
+  --primary: #90caf9;
+  --primary-dark: #42a5f5;
+  --bg-color: #121212;
+  --card-bg: #1e1e1e;
+  --text-color: #e8e8e8;
+  --muted-text: #aaaaaa;
+}
